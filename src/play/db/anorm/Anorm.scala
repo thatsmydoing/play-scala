@@ -642,7 +642,7 @@ package anorm {
 
         lazy val name = tableName.orElse(conventions.lift(TableC(typeName))).getOrElse(typeName)
 
-        def getQualifiedColumnName(column:String) = name+"."+column
+        def getQualifiedColumnName(column:String) = column
 
         def isConstructorSupported(c:Constructor[_]):Boolean = true
 
