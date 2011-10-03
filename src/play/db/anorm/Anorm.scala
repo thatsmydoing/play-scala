@@ -662,10 +662,10 @@ package anorm {
                                                 .getOrElse(throw new java.lang.RuntimeException("no supported constructors for type " +m))
 
             val coherent = paramTypes.length == paramNames.length
+	    
+            val liftedNames = paramNames.map( name => conventions.lift(ColumnC(typeName, clean(name))).getOrElse(clean(name)) )
 
-            val names_types =  paramNames.zip(paramTypes).map( nt =>
-                (conventions(ColumnC(name,clean(nt._1))),nt._2)
-            )
+            val names_types = liftedNames.zip(paramTypes)
 
             if(!coherent && names_types.map(_._1).exists(_.contains("outer")))
                 throw new java.lang.RuntimeException("It seems that your class uses a closure to an outer instance. For MagicParser, please use only top level classes.")
@@ -674,7 +674,7 @@ package anorm {
 
             val names_methods = handling(classOf[NoSuchMethodException])
                   .by(e =>throw new RuntimeException( "The elected constructor doesn't have corresponding methods for all its parameters. "+e.toString))
-                  .apply(paramNames.map(name=>(clean(name),m.erasure.getDeclaredMethod(name))))
+                  .apply(liftedNames.zip(paramNames.map(name=>m.erasure.getDeclaredMethod(name))))
 
             play.Logger.trace("Constructor " + cons + " elected for " + typeName)
 
